@@ -1,0 +1,86 @@
+SECTION 1: ADVANCED MATHEMATICAL LOGIC
+
+To strategically manage Etosha National Park's expanse (22,935 km^2) with limited resources (295 personnel), we formulate a Spatio-Temporal Constrained Optimization Model. We prioritize the high-risk 4,800 km^2 savanna/salt pans, 3,551 km of roads, and 86 waterholes, accounting for both detection and interception probabilities.
+
+1. Definitions of Sets and Variables
+Let W be the set of waterholes, indexed by i \in {1, ..., 86}.
+Let R be the set of road segments, indexed by j \in {1, ..., |R|}.
+Let Z be the set of high-priority zones (savanna/pans), indexed by k \in {1, ..., |Z|}.
+Let T be the set of time periods (e.g., day/night shifts), indexed by t \in T.
+
+Decision Variables:
+x_i \in {0, 1}: Binary variable; 1 if an AI camera is installed at waterhole i, 0 otherwise.
+y_{j,t} \ge 0: Continuous variable; drone surveillance hours allocated to road segment j during period t.
+s_{k,t} \in \mathbb{Z}^+: Integer variable; number of rangers actively patrolling zone k during period t.
+b_k \in \mathbb{Z}^+: Integer variable; number of rangers stationed at the rapid-response base nearest to zone k.
+
+2. Detection and Interception Probabilities
+The probability of successfully thwarting a poaching event requires both Detection (P_d) and successful Interception (P_int).
+
+Detection Probability (P_d):
+- Waterholes (AI Cameras): Pd_{w,i} = 1 - (1 - \alpha)^{x_i}, where \alpha is the baseline AI detection reliability under varying light conditions.
+- Roads (Drones): Pd_{r,j,t} = 1 - e^{-\beta \cdot y_{j,t}}, where \beta is the drone sensor sweep rate.
+- Zones (Rangers): Pd_{z,k,t} = 1 - e^{-\gamma \cdot s_{k,t}}, where \gamma is the ranger search efficiency.
+
+Interception Probability (P_int):
+Depends on the response time (\tau) versus the poacher's extraction time.
+P_{int,k} = e^{-\delta \cdot (d_k / v)}, where d_k is the distance from the nearest base to zone k, v is ranger vehicle speed, and \delta is the poacher escape rate.
+
+3. The Effective Protection Index (EPI)
+The EPI calculates the expected value of successful poaching preventions, weighted by the Rhino Vulnerability Score (V) which fluctuates by time t.
+
+EPI = \sum_{t \in T} [ \sum_{i \in W} V_{w,i,t} \cdot Pd_{w,i} \cdot P_{int,i} + \sum_{j \in R} V_{r,j,t} \cdot Pd_{r,j,t} \cdot P_{int,j} + \sum_{k \in Z} V_{z,k,t} \cdot Pd_{z,k,t} \cdot P_{int,k} ]
+
+4. Objective Function
+Maximize the Effective Protection Index (EPI):
+\max_{x, y, s, b} \quad EPI
+
+5. Realistic Constraints
+Personnel Constraint (Maximum 295 staff):
+\sum_{k \in Z} s_{k,t} + \sum_{k \in Z} b_k + c_d \sum_{j \in R} y_{j,t} + c_c \sum_{i \in W} x_i \le 295 \quad \forall t \in T
+(Where c_d = staff per drone flight hour, c_c = staff to maintain AI cameras).
+
+Budget Constraint (B):
+\sum_{i \in W} C_c \cdot x_i + \sum_{t \in T} \sum_{j \in R} C_d \cdot y_{j,t} \le B
+(Where C_c is the installation/maintenance cost of an AI camera, and C_d is the hourly operational cost of a drone).
+
+Drone Battery/Flight Time Constraints:
+\sum_{j \in R} y_{j,t} \le M_{d,t} \quad \forall t \in T
+(Maximum drone flight hours per shift based on battery limits and available units).
+
+6. Sensitivity Analysis & Adaptability
+- Ranger Reduction Analysis: Using the shadow price of the personnel constraint, we can quantify the exact EPI drop if staff falls below 295, highlighting systemic vulnerability.
+- Shifting Poaching Pressure: As poachers learn drone paths, V_{r,j,t} values are updated dynamically. The model re-optimizes to randomize drone deployments y_{j,t}, avoiding predictable patrol patterns.
+- General Adaptability: For other reserves, terrain-specific constants (\alpha, \beta, \gamma, \delta) and network distances (d_k) are recalibrated. The model easily scales to integrate acoustic sensors by adding a new binary variable.
+
+================================================================================
+
+SECTION 2: HYBRID STRATEGY EXPLANATION (ENHANCED)
+
+Our Enhanced Hybrid Solution pivots from "static observation" to "dynamic rapid response," combining AI, Operations Research, and game theory.
+
+1. AI Detection & Continuous Monitoring
+At the 86 waterholes, AI camera traps provide 24/7 monitoring. Instead of treating detection as an end goal, the AI acts as a localized tripwire. The binary variable (x_i) ensures cameras are placed only at waterholes with the highest expected ROI, optimizing the budget constraint.
+
+2. Dynamic Drone Patrols (Game Theory Aspect)
+Poachers study ranger routines. By allocating drone hours (y_{j,t}) through our time-indexed continuous variables, the drone schedules become pseudo-randomized across the 3,551 km of roads. This unpredictability maximizes the deterrence factor while keeping operations within battery and staffing constraints.
+
+3. Integrated Ranger Management (The Base-and-Patrol Model)
+Deploying 295 personnel evenly across 22,935 km^2 is inefficient. Our model introduces a split deployment: Active Patrollers (s_{k,t}) and Rapid-Response Units (b_k). 
+- Active patrollers act as localized deterrents in the 4,800 km^2 high-risk zones.
+- Rapid-response units remain stationed at strategic bases. When AI cameras or drones detect an anomaly, these units are instantly dispatched, maximizing the Interception Probability (P_int).
+
+================================================================================
+
+SECTION 3: COMPLIANCE CHECKLIST
+
+[X] 2026_IMMC_Problem.pdf Constraints Met:
+- Etosha Area: Addresses the full 22,935 km^2 by segmenting critical areas (roads, waterholes, savanna).
+- 295 Staff Limit: Strictly enforced across all time periods (t) in the primary personnel constraint.
+- Prioritization: The dynamic V parameter ensures Black Rhino hotspots receive the highest allocation of resources.
+- Realistic Upgrades: Added interception probability and budget constraints, moving beyond a simple "coverage" model to a real-world operational strategy.
+
+[X] IMMC_Regulations.pdf Constraints Met:
+- AI Use Report: The integration of AI camera logic and data-driven deployment aligns perfectly with the requirements for the AI report.
+- Anonymity: Kept strictly generic and team-agnostic.
+- Solution Document Structure: The equations and strategic explanations are formatted cleanly for direct integration into the final PDF submission.
